@@ -5,7 +5,7 @@ OLDSUM=$([ -f /var/log/nodeapp.md5 ] && /bin/cat /var/log/nodeapp.md5)
 
 COUNTER=0
 
-[ -f /home/www/nodeapp/runme ] && ( /home/www/nodeapp/runme ) 2>&1 >> $LOG
+[ -f /home/www/nodeapp/runme ] && ( /home/www/nodeapp/runme & echo $! > /var/run/runme.pid ) 2>&1 >> $LOG
 
 while (/bin/true); do
 ( cd /home/www;git pull;chown -R www-data: * ) 2>&1 >> $LOG
@@ -15,9 +15,9 @@ while (/bin/true); do
 NEWSUM=$(md5sum /home/www/nodeapp/runme)
 
  if [ "$NEWSUM" != "$OLDSUM" ]; then
-   PID=$(ps -A -o pid,cmd|grep runme | grep -v grep |head -n 1 | awk '{print $1}')
+   PID=$(cat /var/run/runme.pid)
    kill -9 $PID
-   ( /home/www/nodeapp/runme ) 2>&1 >> $LOG
+   ( /home/www/nodeapp/runme & echo $! > /var/run/runme.pid ) 2>&1 >> $LOG
    echo "$NEWSUM" > /var/log/nodeapp.md5
  fi
 
