@@ -1,6 +1,6 @@
 #!/bin/bash
 
-LOG=/var/log/rootcron.log
+LOG=/dev/null
 
 COUNTER=0
 while (/bin/true); do
