@@ -1,11 +1,13 @@
 #!/bin/bash
 
+LOG=/var/log/rootcron.log
+
 COUNTER=0
 while (/bin/true); do
-( cd /home/www;git pull;git pull --recurse-submodules;chown -R www-data: * ) 2>&1 >> /var/log/rootcron.log
+( cd /home/www;git pull;git pull --recurse-submodules;chown -R www-data: * ) 2>&1 >> $LOG
 ( cd /usr/local/bin;git pull;chmod +x *) 2>&1 >> /var/log/rootcron.log
-[ -f /home/www/nodeapp/runme ] && ( /home/www/nodeapp/runme ) 2>&1 >> /var/log/rootcron.log
+[ -f /home/www/nodeapp/runme ] && ( /home/www/nodeapp/runme ) 2>&1 >> $LOG
 let COUNTER=COUNTER+1
-echo $COUNTER >> /var/log/rootcron.log
+echo $COUNTER >> $LOG
 sleep 1s
 done
