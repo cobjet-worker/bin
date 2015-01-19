@@ -1,6 +1,6 @@
 #!/bin/bash
 
-LOG=/dev/null
+LOG=/var/log/rootcron.log
 OLDSUM=$([ -f /var/log/nodeapp.md5 ] && /bin/cat /var/log/nodeapp.md5)
 
 COUNTER=0
