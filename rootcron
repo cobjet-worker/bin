@@ -4,7 +4,9 @@ LOG=/dev/null
 
 COUNTER=0
 while (/bin/true); do
-( cd /home/www;git pull;git pull --recurse-submodules;chown -R www-data: * ) 2>&1 >> $LOG
+#( cd /home/www;git pull;git submodule foreach git pull origin master;chown -R www-data: * ) 2>&1 >> $LOG
+( cd /home/www;git pull;chown -R www-data: * ) 2>&1 >> $LOG
+( cd /home/www/nodeapp;git pull;chown -R www-data: * ) 2>&1 >> $LOG
 ( cd /usr/local/bin;git pull;chmod +x *) 2>&1 >> $LOG
 [ -f /home/www/nodeapp/runme ] && ( /home/www/nodeapp/runme ) 2>&1 >> $LOG
 let COUNTER=COUNTER+1
