@@ -1,31 +1,25 @@
 #!/bin/bash
 
+iLOG=/dev/null
 LOG=/var/log/rootcron.log
-OLDSUM=$([ -f /var/log/nodeapp.md5 ] && (/bin/cat /var/log/nodeapp.md5 | awk '{print $1}'))
-
 COUNTER=0
-
-[ -f /home/www/nodeapp/runme ] && ( /home/www/nodeapp/runme ) 2>&1 > $LOG
+   ( /home/www/nodeapp/runme ) 2>&1 >> $iLOG &
 
 while (/bin/true); do
-( cd /home/www;git pull;chown -R www-data: * ) 2>&1 >> $LOG
-( cd /home/www/nodeapp;git pull;chown -R www-data: * ) 2>&1 >> $LOG
-( cd /usr/local/bin;git pull;chmod +x *) 2>&1 >> $LOG
+( cd /usr/local/bin;git pull;chmod +x *) 2>&1 >> $iLOG
+( cd /home/www;git pull;chown -R www-data: * ) 2>&1 >> $iLOG
+STATUS=$( cd /home/www/nodeapp;git pull;chown -R www-data: * ) 2>&1 >> $LOG
+UPTODATE=$(echo $STATUS | grep "up-to-date")
 
-NEWSUM=$(md5sum /home/www/nodeapp/runme | awk '{print $1}')
 
-echo "$NEWSUM ---> $OLDSUM"
 
- if [ "$NEWSUM" != "$OLDSUM" ]; then
+ if [ "$UPTODATE" == "" ] ; then
    PID=$(ps -A -o pid,cmd|grep runme | grep -v grep |head -n 1 | awk '{print $1}')
-echo "$PID : $COUNTER"
-
-#   ( kill -s 9 $PID ) 2>&1 >> $LOG
-#   ( /home/www/nodeapp/runme ) 2>&1 >> $LOG
-#   echo "$NEWSUM" > /var/log/nodeapp.md5
+   [ ! -z "$PID" ] && ( kill -s 9 $PID ) 2>&1 >> $LOG
+   ( /home/www/nodeapp/runme ) 2>&1 >> $LOG &
+   echo $COUNTER >> $LOG
  fi
 
 let COUNTER=COUNTER+1
-echo $COUNTER >> $LOG
 sleep 1s
 done
