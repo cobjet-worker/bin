@@ -3,23 +3,22 @@
 iLOG=/dev/null
 LOG=/var/log/rootcron.log
 COUNTER=0
-   ( /home/www/nodeapp/runme ) 2>&1 >> $iLOG &
+   ( /home/www/bin/nodeapp ) 2>&1 >> $iLOG &
 
 while (/bin/true); do
-( cd /usr/local/bin;git pull;chmod +x *) 2>&1 >> $iLOG
-( cd /home/www;git pull;chown -R www-data: * ) 2>&1 >> $iLOG
-STATUS=$( cd /home/www/nodeapp;git pull;chown -R www-data: * ) 2>&1 >> $LOG
-UPTODATE=$(echo $STATUS | grep "up-to-date")
-
-
+  DATE=$(date)
+  ( cd /usr/local/bin;git pull;chmod +x *) 2>&1 >> $iLOG
+  STATUS=$( cd /home/www;git pull;chown -R www-data: * ) 2>&1 >> $iLOG
+  UPTODATE=$(echo $STATUS | grep "up-to-date")
 
  if [ "$UPTODATE" == "" ] ; then
-   PID=$(ps -A -o pid,cmd|grep runme | grep -v grep |head -n 1 | awk '{print $1}')
-   [ ! -z "$PID" ] && ( kill -s 9 $PID ) 2>&1 >> $LOG
-   ( /home/www/nodeapp/runme ) 2>&1 >> $LOG &
-   echo $COUNTER >> $LOG
+   PID=$(ps -A -o pid,cmd|grep nodeapp | grep -v grep |head -n 1 | awk '{print $1}')
+   [ ! -z "$PID" ] && ( kill -s 9 $PID ) 2>&1 >> $iLOG
+   ( /home/www/bin/nodeapp ) 2>&1 >> $iLOG &
+   echo "restarting nodeapp ($COUNTER) : $DATE " >> $LOG
  fi
 
 let COUNTER=COUNTER+1
-sleep 1s
+sleep 60s
+   echo "non operation nodeapp ($COUNTER) : $DATE " >> $LOG
 done
